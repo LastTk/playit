@@ -1,0 +1,45 @@
+name: Test Game Server
+
+on:
+  workflow_dispatch:
+
+jobs:
+  rdp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    steps:
+       - name: Download repository files
+         uses: actions/checkout@v2
+
+       - name: Install dependencies
+         run: |
+           sudo apt-get update
+           sudo apt-get install -y wget unzip
+
+       - name: Download tool
+         run: |
+           wget https://github.com/playit-cloud/playit-agent/releases/download/v0.15.22/playit-linux_amd64.tar.gz -O tool.tar.gz
+           tar -xvf tool.tar.gz
+
+       - name: Install UnRAR
+         run: |
+           sudo apt-get install -y unrar
+
+       - name: Extract server files
+         run: |
+           unrar x net8.0.rar
+
+       - name: Open Ports (Linux version of the batch script)
+         run: chmod +x ports.sh && ./ports.sh
+
+       - name: Creating Tunnel
+         run: ./playit-linux_amd64 &
+
+       - name: Creating Server
+         run: ./SFMUDP
+
+       - name: Keep Alive
+         run: |
+           chmod +x timeout.sh
+           ./timeout.sh
