@@ -1,0 +1,26 @@
+name: Test Game Server
+
+on:
+  workflow_dispatch:
+jobs:
+  rdp:
+    runs-on: windows-latest
+    timeout-minutes: 360
+    
+    steps:
+       - name: Download repository files
+         uses: actions/checkout@v2
+       
+       - name: Download tool
+         run: |
+          Invoke-WebRequest -Uri https://github.com/playit-cloud/playit-agent/releases/download/v0.15.22/playit-windows-x86_64-signed.exe -OutFile tool.exe
+       
+       - name: Open Ports
+         run: cmd /c ports.bat
+       
+       - name: Creating Tunnel
+         run: Start-Process Powershell -ArgumentList '-Noexit -Command ".\tool.exe"'
+       - name: Creating Server
+         run: .\SFMUDP.exe
+       - name: Keep Alive
+         run: ./timeout.ps1
